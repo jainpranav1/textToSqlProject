@@ -13,16 +13,29 @@ def grab_table_information():
         tables = [{
             "table_name": table,
             "column_names": [],
-            "column_types": []
+            "column_types": [],
+            "primary_key": None, # there are no composite primary keys in the dataset
+            "foreign_keys": []
         } for table in database['table_names']]
 
 
         for i in range(len(database['column_names'])):
+
             columnName = database['column_names'][i][1]
             columnType = database['column_types'][i]
             tableIndex = database['column_names'][i][0]
+
+            if tableIndex < 0:
+                continue
+
             tables[tableIndex]["column_names"].append(columnName)
             tables[tableIndex]["column_types"].append(columnType)
+
+            if i in database['primary_keys']:
+                tables[tableIndex]["primary_key"] = columnName
+
+            if i in database['foreign_keys']:
+                tables[tableIndex]["foreign_keys"].append(columnName)
 
         for table in tables:
             print(f"Table: {table['table_name']}")
@@ -31,26 +44,22 @@ def grab_table_information():
             numColumns = len(table['column_names'])
 
             for i in range(numColumns):
-                column = table['column_names'][i]
+                columnName = table['column_names'][i]
                 columnType = table['column_types'][i]
-                print(f" - {column} ({columnType})")
+                print(f" - {columnName} ({columnType})")
+
+            if table['primary_key'] != None:
+                print(f"Primary Key: {table['primary_key']}")
+
+
+            if len(table['foreign_keys']) > 0:
+                for fk in table['foreign_keys']:
+                    print(f"Foreign Key: {fk}")
+
             print()
 
 
         print("===================================")
-
-
-    
-        # for table in enumerate(database['table_names'], 1):
-
-        #     print(f"  Table {j}: {table}")
-        
-        
-        # print(f"Table {i}: {table['table_name']}")
-        # print("Columns:")
-        # for column in table['column_names']:
-        #     print(f" - {column[1]}")
-        # print()
 
 if __name__ == "__main__":
     grab_table_information()
