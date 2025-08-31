@@ -15,6 +15,7 @@ def grab_table_information():
             "column_names": [],
             "column_types": [],
             "primary_key": None, # there are no composite primary keys in the dataset
+            "foreign_keys": []
         } for table in database['table_names']]
 
 
@@ -33,6 +34,9 @@ def grab_table_information():
             if i in database['primary_keys']:
                 tables[tableIndex]["primary_key"] = columnName
 
+            if i in [fk[0] for fk in database["foreign_keys"]]:
+                tables[tableIndex]["foreign_keys"].append(columnName)
+
         for table in tables:
             print(f"Table: {table['table_name']}")
             print("Columns:")
@@ -46,6 +50,11 @@ def grab_table_information():
 
             if table['primary_key'] != None:
                 print(f"Primary Key: {table['primary_key']}")
+
+            if len(table['foreign_keys']) > 0:
+                print("Foreign Keys:")
+                for fk in table['foreign_keys']:
+                    print(f" - {fk}")
 
             print()
 
