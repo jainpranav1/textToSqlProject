@@ -15,7 +15,7 @@ def grab_table_information():
             "column_names": [],
             "column_types": [],
             "primary_key": None, # there are no composite primary keys in the dataset
-            "foreign_keys": []
+            "foreign_keys": [] # there are no composite foreign keys in the dataset
         } for table in database['table_names']]
 
 
@@ -25,7 +25,7 @@ def grab_table_information():
             columnType = database['column_types'][i]
             tableIndex = database['column_names'][i][0]
 
-            if tableIndex < 0:
+            if tableIndex == -1: # this column is a special column that does not belong to any table
                 continue
 
             tables[tableIndex]["column_names"].append(columnName)
@@ -34,8 +34,18 @@ def grab_table_information():
             if i in database['primary_keys']:
                 tables[tableIndex]["primary_key"] = columnName
 
-            if i in [fk[0] for fk in database["foreign_keys"]]:
-                tables[tableIndex]["foreign_keys"].append(columnName)
+
+        for fk in database["foreign_keys"]:
+            sourceColIndex = fk[0]
+            sourceColName = database['column_names'][sourceColIndex][1]
+            targetColIndex = fk[1]
+            targetColName = database['column_names'][targetColIndex][1]
+
+            sourceTableIndex = database['column_names'][sourceColIndex][0]
+            targetTableIndex = database['column_names'][targetColIndex][0]
+            targetTableName = database['table_names'][targetTableIndex]
+
+            tables[sourceTableIndex]["foreign_keys"].append(f"{sourceColName} -> '{targetTableName}'.'{targetColName}'")
 
         for table in tables:
             print(f"Table: {table['table_name']}")
